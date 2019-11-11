@@ -1,0 +1,25 @@
+{
+  "name": "devc-teamwork-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/josephadah/devc-teamwork-backend.git"
+  },
+  "author": "Joseph Adah Jonathan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/josephadah/devc-teamwork-backend/issues"
+  },
+  "homepage": "https://github.com/josephadah/devc-teamwork-backend#readme",
+  "dependencies": {
+    "config": "^3.2.4",
+    "express": "^4.17.1",
+    "express-async-errors": "^3.1.1",
+    "winston": "^3.2.1"
+  }
+}
