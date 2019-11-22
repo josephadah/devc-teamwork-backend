@@ -1,7 +1,7 @@
 const { pool } = require("../config/db");
 
 const getAllPosts = (req, res) => {
-  pool.query("SELECT * FROM customers", (error, results) => {
+  pool.query("SELECT * FROM users", (error, results) => {
     if (error) {
       throw error;
     }
