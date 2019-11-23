@@ -1,6 +1,6 @@
 const express = require("express");
-const router = express.Router();
 const ctrl = require("../controllers/articles");
+const router = express.Router();
 
 // GET all articles
 router.get("/", ctrl.getAllArticles);
