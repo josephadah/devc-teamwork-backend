@@ -2,7 +2,7 @@ const { pool } = require("../config/db");
 
 const getAllArticles = (req, res) => {
   try {
-    pool.query("SELECT * FROM articles", (error, results) => {
+    pool.query(`SELECT * FROM articles ORDER BY "createdOn" DESC`, (error, results) => {
       if (error) {
         throw error;
       }

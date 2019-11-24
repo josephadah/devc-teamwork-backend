@@ -4,7 +4,7 @@ const { uploader} = require("../config/cloudinaryConfig");
 
 const getAllGif = (req, res) => {
   try {
-    pool.query("SELECT * FROM gifs", (error, results) => {
+    pool.query(`SELECT * FROM gifs ORDER BY "createdOn" DESC`, (error, results) => {
       if (error) {
         throw error;
       }
