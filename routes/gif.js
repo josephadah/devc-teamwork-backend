@@ -7,16 +7,13 @@ const router = express.Router();
 // GET all gifs
 router.get("/", ctrl.getAllGif);
 
-// // GET single gif by id
-// router.get("/:id", ctrl.getArticle);
+// GET single gif by id
+router.get("/:id", ctrl.getGif);
 
 // POST gif
 router.post("/", [cloudinaryConfig, multerUploads], ctrl.postGif);
 
-// // PATCH gif
-// router.patch("/:id", ctrl.editArticle);
-
-// // DELETE gif
-// router.delete("/:id", ctrl.deleteArticle);
+// DELETE gif
+router.delete("/:id", cloudinaryConfig, ctrl.deleteGif);
 
 module.exports = router;

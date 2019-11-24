@@ -1,9 +1,11 @@
 const express = require("express");
-const router = express.Router();
+const authenticate = require("../middlewares/authenticate");
+const admin = require("../middlewares/admin");
 const ctrl = require("../controllers/auth");
+const router = express.Router();
 
 // Create user
-router.post("/create-user", ctrl.postUser);
+router.post("/create-user",  [authenticate, admin], ctrl.postUser);
 
 // Signin user
 router.post("/signin", ctrl.signIn);
