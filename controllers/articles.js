@@ -1,29 +1,27 @@
 const { pool } = require("../config/db");
 
-const getAllArticles = (req, res) => {
+const getAllArticles = (req, res, next) => {
   try {
     pool.query(
       `SELECT * FROM articles ORDER BY "createdOn" DESC`,
       (error, results) => {
-        if (error) {
-          throw error;
-        }
+        if (error) return next(error);
         res.status(200).json({ status: "success", data: results.rows });
       }
     );
   } catch (error) {
-    throw error;
+    next(error);
   }
 };
 
-const getArticle = (req, res) => {
+const getArticle = (req, res, next) => {
   try {
     const id = parseInt(req.params.id, 10);
     pool.query(
       `SELECT * FROM articles WHERE "articleId" = $1`,
       [id],
       (error, results) => {
-        if (error) throw error;
+        if (error) return next(error);
 
         const article = results.rows[0];
 
@@ -36,7 +34,7 @@ const getArticle = (req, res) => {
           `SELECT * FROM comments WHERE "articleId" = $1`,
           [id],
           (err, resp) => {
-            if (err) throw error;
+            if (err) return next(err);
             const comments = resp.rows.map(x => {
               return {
                 commentId: x.commentId,
@@ -60,20 +58,19 @@ const getArticle = (req, res) => {
       }
     );
   } catch (err) {
-    throw err;
+    next(err);
   }
 };
 
-const postArticle = (req, res) => {
+const postArticle = (req, res, next) => {
   try {
     const { title, article } = req.body;
     pool.query(
       `INSERT INTO articles (title, article, "userId") VALUES ($1, $2, $3) RETURNING *`,
       [title, article, req.user.userId],
       (error, result) => {
-        if (error) {
-          throw error;
-        }
+        if (error) return next(error);
+
         const { articleId, createdOn } = result.rows[0];
         res.status(201).json({
           status: "success",
@@ -87,11 +84,11 @@ const postArticle = (req, res) => {
       }
     );
   } catch (err) {
-    throw err;
+    next(err);
   }
 };
 
-const editArticle = (req, res) => {
+const editArticle = (req, res, next) => {
   try {
     const { title, article } = req.body;
     const id = parseInt(req.params.id, 10);
@@ -100,7 +97,7 @@ const editArticle = (req, res) => {
       `SELECT * FROM articles WHERE "articleId" = $1`,
       [id],
       (error, results) => {
-        if (error) throw error;
+        if (error) return next(error);
         const dbArticle = results.rows[0];
         if (dbArticle.userId !== req.user.userId)
           return res
@@ -111,7 +108,7 @@ const editArticle = (req, res) => {
           `UPDATE articles SET title = $1, article = $2 WHERE "articleId" = $3`,
           [title, article, id],
           (error, result) => {
-            if (error) throw error;
+            if (error) return next(error);
             res.status(200).json({
               status: "success",
               data: {
@@ -125,11 +122,11 @@ const editArticle = (req, res) => {
       }
     );
   } catch (err) {
-    throw err;
+    next(err);
   }
 };
 
-const deleteArticle = (req, res) => {
+const deleteArticle = (req, res, next) => {
   try {
     const id = parseInt(req.params.id, 10);
 
@@ -137,7 +134,7 @@ const deleteArticle = (req, res) => {
       `SELECT * FROM articles WHERE "articleId" = $1`,
       [id],
       (error, results) => {
-        if (error) throw error;
+        if (error) return next(error);
         const article = results.rows[0];
         if (article) {
           if (article.userId !== req.user.userId)
@@ -149,7 +146,7 @@ const deleteArticle = (req, res) => {
             `DELETE FROM articles WHERE "articleId" = $1`,
             [id],
             (error, result) => {
-              if (error) throw error;
+              if (error) return next(error);
               res.status(200).json({
                 status: "success",
                 data: {
@@ -164,11 +161,11 @@ const deleteArticle = (req, res) => {
       }
     );
   } catch (err) {
-    throw err;
+    next(err);
   }
 };
 
-const postComment = (req, res) => {
+const postComment = (req, res, next) => {
   try {
     const { comment } = req.body;
     const articleId = parseInt(req.params.id, 10);
@@ -178,7 +175,7 @@ const postComment = (req, res) => {
       `INSERT INTO comments (comment, "authorId", "articleId") VALUES ($1, $2, $3) RETURNING *`,
       [comment, authorId, articleId],
       (error, result) => {
-        if (error) throw error;
+        if (error) return next(error);
 
         const { createdOn } = result.rows[0];
 
@@ -186,7 +183,7 @@ const postComment = (req, res) => {
           `SELECT * FROM articles WHERE "articleId" = $1`,
           [articleId],
           (err, response) => {
-            if (err) throw err;
+            if (err) return next(err);
             const article = response.rows[0];
             res.status(201).json({
               status: "success",
@@ -203,7 +200,7 @@ const postComment = (req, res) => {
       }
     );
   } catch (err) {
-    throw err;
+    next(err);
   }
 };
 

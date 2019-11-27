@@ -2,30 +2,28 @@ const { pool } = require("../config/db");
 const { dataUri } = require("../middlewares/multer");
 const { uploader } = require("../config/cloudinaryConfig");
 
-const getAllGif = (req, res) => {
+const getAllGif = (req, res, next) => {
   try {
     pool.query(
       `SELECT * FROM gifs ORDER BY "createdOn" DESC`,
       (error, results) => {
-        if (error) {
-          throw error;
-        }
+        if (error) return next(error);
         res.status(200).json({ status: "success", data: results.rows });
       }
     );
   } catch (error) {
-    throw error;
+    next(error);
   }
 };
 
-const getGif = (req, res) => {
+const getGif = (req, res, next) => {
   try {
     const id = parseInt(req.params.id, 10);
     pool.query(
       `SELECT * FROM gifs WHERE "gifId" = $1`,
       [id],
       (error, results) => {
-        if (error) throw error;
+        if (error) return next(error);
 
         const gif = results.rows[0];
 
@@ -38,7 +36,7 @@ const getGif = (req, res) => {
           `SELECT * FROM comments WHERE "gifId" = $1`,
           [id],
           (err, resp) => {
-            if (err) throw error;
+            if (err) return next(error);
             const comments = resp.rows.map(x => {
               return {
                 commentId: x.commentId,
@@ -62,7 +60,7 @@ const getGif = (req, res) => {
       }
     );
   } catch (error) {
-    throw error;
+    next(error);
   }
 };
 
@@ -82,7 +80,7 @@ const postGif = (req, res, next) => {
             `INSERT INTO gifs ("title", "imageUrl", "userId", "publicId") VALUES ($1, $2, $3, $4) RETURNING *`,
             [req.body.title, url, req.user.userId, public_id],
             (error, result) => {
-              if (error) throw error;
+              if (error) return next(error);
               const { gifId, createdOn, title, imageUrl } = result.rows[0];
               res.status(201).json({
                 status: "success",
@@ -104,11 +102,11 @@ const postGif = (req, res, next) => {
         );
     }
   } catch (error) {
-    throw error;
+    next(error);
   }
 };
 
-const deleteGif = (req, res) => {
+const deleteGif = (req, res, next) => {
   try {
     const id = parseInt(req.params.id, 10);
 
@@ -116,7 +114,7 @@ const deleteGif = (req, res) => {
       `SELECT * FROM gifs WHERE "gifId" = $1`,
       [id],
       (error, results) => {
-        if (error) throw error;
+        if (error) return next(error);
         const gif = results.rows[0];
         if (gif) {
           if (gif.userId !== req.user.userId)
@@ -130,7 +128,7 @@ const deleteGif = (req, res) => {
                 `DELETE FROM gifs WHERE "gifId" = $1`,
                 [id],
                 (error, result) => {
-                  if (error) throw error;
+                  if (error) return next(error);
                   res.status(200).json({
                     status: "success",
                     data: {
@@ -152,11 +150,11 @@ const deleteGif = (req, res) => {
       }
     );
   } catch (err) {
-    throw err;
+    next(err);
   }
 };
 
-const postComment = (req, res) => {
+const postComment = (req, res, next) => {
   try {
     const { comment } = req.body;
     const gifId = parseInt(req.params.id, 10);
@@ -166,7 +164,7 @@ const postComment = (req, res) => {
       `INSERT INTO comments (comment, "authorId", "gifId") VALUES ($1, $2, $3) RETURNING *`,
       [comment, authorId, gifId],
       (error, result) => {
-        if (error) throw error;
+        if (error) return next(error);
 
         const { createdOn } = result.rows[0];
 
@@ -174,7 +172,7 @@ const postComment = (req, res) => {
           `SELECT * FROM gifs WHERE "gifId" = $1`,
           [gifId],
           (err, response) => {
-            if (err) throw err;
+            if (err) return next(err);
             const gif = response.rows[0];
             res.status(201).json({
               status: "success",
@@ -190,7 +188,7 @@ const postComment = (req, res) => {
       }
     );
   } catch (err) {
-    throw err;
+    next(err);
   }
 };
 
