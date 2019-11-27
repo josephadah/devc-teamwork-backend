@@ -17,4 +17,7 @@ router.patch("/:id", ctrl.editArticle);
 // DELETE article
 router.delete("/:id", ctrl.deleteArticle);
 
+// POST comment
+router.post("/:id/comment", ctrl.postComment);
+
 module.exports = router;
