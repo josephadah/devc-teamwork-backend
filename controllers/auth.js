@@ -1,13 +1,22 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { pool } = require("../config/db");
-const userController = require("../controllers/user");
+const commonQuery = require("./common");
 
 const postUser = async (req, res) => {
   try {
-    const {firstName, lastName, email, password, gender, jobRole, department, address } = req.body;
+    const {
+      firstName,
+      lastName,
+      email,
+      password,
+      gender,
+      jobRole,
+      department,
+      address
+    } = req.body;
 
-    const user = await userController.getUserByEmail(email);
+    const user = await commonQuery.getUserByEmail(email);
 
     if (user)
       return res.status(400).json({
@@ -21,7 +30,16 @@ const postUser = async (req, res) => {
     const result = await pool.query(
       `INSERT INTO users ("firstName", "lastName", "email", "password", "gender", "jobRole", "department", "address") 
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
-      [firstName, lastName, email, saltedPassword, gender, jobRole, department, address]
+      [
+        firstName,
+        lastName,
+        email,
+        saltedPassword,
+        gender,
+        jobRole,
+        department,
+        address
+      ]
     );
 
     const newUser = result.rows[0];
@@ -43,19 +61,29 @@ const postUser = async (req, res) => {
 
 const signIn = async (req, res) => {
   try {
-    const {email, password} = req.body;
-    const user = await userController.getUserByEmail(email);
-    if (!user) return res.status(400).json({"status": "error", "data": {"message": "Invalid login credential/s"}});
+    const { email, password } = req.body;
+    const user = await commonQuery.getUserByEmail(email);
+    if (!user)
+      return res.status(400).json({
+        status: "error",
+        data: { message: "Invalid login credential/s" }
+      });
 
     const validPassword = await bcrypt.compare(password, user.password);
-    if (!validPassword) return res.status(400).json({"status": "error", "data": {"message": "Invalid login credential/s"}});
+    if (!validPassword)
+      return res.status(400).json({
+        status: "error",
+        data: { message: "Invalid login credential/s" }
+      });
 
     const token = generateToken(user);
-    res.status(200).json({"status": "success", "data": {"token": token, "userId": user.userId}});
+    res
+      .status(200)
+      .json({ status: "success", data: { token: token, userId: user.userId } });
   } catch (error) {
     throw error;
   }
-}
+};
 
 const generateToken = user => {
   try {
@@ -72,7 +100,7 @@ const generateToken = user => {
   } catch (error) {
     throw error;
   }
-}
+};
 
 module.exports = {
   postUser,

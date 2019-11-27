@@ -16,4 +16,7 @@ router.post("/", [cloudinaryConfig, multerUploads], ctrl.postGif);
 // DELETE gif
 router.delete("/:id", cloudinaryConfig, ctrl.deleteGif);
 
+// POST comment
+router.post("/:id/comment", ctrl.postComment);
+
 module.exports = router;
