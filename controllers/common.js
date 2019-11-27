@@ -12,9 +12,11 @@ const getUserByEmail = async email => {
   }
 };
 
-const getFeed = async (req, res) => {
+const getFeed = async (req, res, next) => {
   try {
     pool.query(`SELECT * FROM articles`, (err, results) => {
+      if (err) return next(err);
+
       let articles = results.rows;
 
       if (articles && articles.length > 0) {
@@ -30,6 +32,8 @@ const getFeed = async (req, res) => {
       }
 
       pool.query(`SELECT * FROM gifs`, (er, response) => {
+        if (er) return next(er);
+        
         let gifs = response.rows;
 
         if (gifs && gifs.length > 0) {
@@ -51,7 +55,7 @@ const getFeed = async (req, res) => {
       });
     });
   } catch (error) {
-    throw error;
+    next(error);
   }
 };
 

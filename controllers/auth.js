@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const { pool } = require("../config/db");
 const commonQuery = require("./common");
 
-const postUser = async (req, res) => {
+const postUser = async (req, res, next) => {
   try {
     const {
       firstName,
@@ -55,11 +55,11 @@ const postUser = async (req, res) => {
       }
     });
   } catch (err) {
-    throw err;
+    next(err);
   }
 };
 
-const signIn = async (req, res) => {
+const signIn = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     const user = await commonQuery.getUserByEmail(email);
@@ -81,7 +81,7 @@ const signIn = async (req, res) => {
       .status(200)
       .json({ status: "success", data: { token: token, userId: user.userId } });
   } catch (error) {
-    throw error;
+    next(error);
   }
 };
 

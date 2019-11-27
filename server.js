@@ -4,7 +4,6 @@ const config = require("config");
 const cors = require('cors');
 const dotenv = require("dotenv");
 const { resolve } = require("path");
-const { pool } = require("./config/db");
 
 const app = express();
 
@@ -17,37 +16,12 @@ app.use(cors());
 
 require("./startup/routes")(app);
 
-
-
-// just for test
-const getBooks = (request, response) => {
-    pool.query('SELECT * FROM books', (error, results) => {
-      if (error) {
-        throw error
-      }
-      response.status(200).json(results.rows)
-    })
-  }
-  
-  const addBook = (request, response) => {
-    const { author, title } = request.body
-  
-    pool.query('INSERT INTO books (author, title) VALUES ($1, $2)', [author, title], error => {
-      if (error) {
-        throw error
-      }
-      response.status(201).json({ status: 'success', message: 'Book added.' })
-    })
-  }
-  
-  app
-    .route('/books')
-    // GET endpoint
-    .get(getBooks)
-    // POST endpoint
-    .post(addBook)
-
-
+// Global error handling
+app.use((err, req, res, next) => {
+  if (!err) next();
+  console.log("Error: ", err.message);
+  res.status(500).json({status: "error", error: "Unexpected server error."});
+});
 
 const port = process.env.PORT || config.get("port");
 
